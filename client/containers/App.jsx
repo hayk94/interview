@@ -1,10 +1,13 @@
-import React, {Component} from 'react';
-import update from 'react/lib/update';
-import {DragDropContext} from 'react-dnd';
-import HTML5Backend from 'react-dnd-html5-backend';
-import ClientRow from '../components/ClientRow';
-import {createContainer} from 'meteor/react-meteor-data';
+import {createContainer} from "meteor/react-meteor-data";
+import ClientsTable from "../components/ClientsTable";
+import AppContainer from "../components/AppContainer";
+import FilterInput from "../components/FilterInput";
+import ResetButton from "../components/ResetButton";
+import HTML5Backend from "react-dnd-html5-backend";
 import {Clients} from "../../collections/clients";
+import {DragDropContext} from "react-dnd";
+import React, {Component} from "react";
+import update from "react/lib/update";
 import {fromJS} from "immutable";
 
 @DragDropContext(HTML5Backend)
@@ -14,7 +17,7 @@ class App extends Component {
 
         this.state = {
             searchWord: "",
-            clients: this.props.clients || [],
+            clients: [],
             editingIndex: null
         }
     }
@@ -65,7 +68,7 @@ class App extends Component {
 
     handleUpdate = ({index, id, name, value}) => {
         const clients = this.getClients();
-        if(clients[index][name] === value) {
+        if (clients[index][name] === value) {
             this.handleReset();
             return;
         } else {
@@ -87,51 +90,18 @@ class App extends Component {
             {editingIndex} = this.state;
 
         return (
-            <div className="row">
-                <div className="col-md-6 col-md-offset-3 main-container">
-                    <h3 className="text-center">Clients</h3>
-                    <div id="custom-search-input">
-                        <div className="input-group col-md-12">
-                            <input
-                                type="text"
-                                placeholder="Filter"
-                                onChange={this.handleFilterChange}
-                                className="search-query form-control"/>
-                            <span className="input-group-btn">
-                                <button className="btn btn-primary" type="button">
-                                    <span className="glyphicon glyphicon-search"></span>
-                                </button>
-                            </span>
-                        </div>
-                    </div>
-                    <table className="table table-stripped table-hover client-table">
-                        <thead>
-                        <tr>
-                            <th className="text-center">Name</th>
-                            <th className="text-center">Email</th>
-                            <th className="text-center">Phone</th>
-                        </tr>
-                        </thead>
-                        <tbody className="text-center">
-                        {clients.map((client, index) => (
-                            <ClientRow
-                                key={index}
-                                index={index}
-                                client={client}
-                                moveRow={this.moveRow}
-                                handleUpdate={this.handleUpdate}
-                                removeOtherEdits={this.removeOtherEdits}
-                                editing={editingIndex !== null && editingIndex !== index}
-                            />
-                        ))}
-                        </tbody>
-                    </table>
-                    {editingIndex !== null && editingIndex !== false &&
-                    <button className="btn btn-warning exit-button" onClick={this.handleReset}>
-                        Exit
-                    </button>}
-                </div>
-            </div>
+            <AppContainer title="Clients">
+                <FilterInput
+                    placeholder="Filter"
+                    handleFilterChange={this.handleFilterChange}/>
+                <ClientsTable
+                    clients={clients}
+                    moveRow={this.moveRow}
+                    editingIndex={editingIndex}
+                    handleUpdate={this.handleUpdate}
+                    removeOtherEdits={this.removeOtherEdits}/>
+                <ResetButton editingIndex={editingIndex} handleReset={this.handleReset} text="Exit"/>
+            </AppContainer>
         );
     }
 }
